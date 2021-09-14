@@ -1,0 +1,148 @@
+import { Link, Redirect } from 'react-router-dom';
+import React, { Fragment, useState } from 'react';
+import './App.css';
+import axios from'axios';
+import{message} from 'antd' ;
+import 'font-awesome/css/font-awesome.min.css';
+import { useHistory } from 'react-router-dom';
+import img from './uploading.png'
+
+function beforeUpload(file) {
+    if(file!==''){
+      var typeFile=file.type.split('.').pop();
+      const isJpgOrPng = file.type === 'application/pdf';
+      if (!isJpgOrPng) {
+        message.error('Vous ne pouvez importer que des fichiers PDF !');
+      }
+      const isLt2M = file.size / 1024 / 1024 < 3;
+      if (!isLt2M) {
+        message.error('PDF must smaller than 3MB!');
+      }
+      return isJpgOrPng && isLt2M;
+    }
+    else{
+      message.warning('Sélection votre Offre svp!');
+      return false;
+    }
+  
+  }
+  var Extracted_Data;
+const ImportOffre = ()=> {
+    const [file, setFile] = useState('');
+  const [filename, setFilename] = useState('Coisir un fichier');
+  // const [uploadedFile, setUploadedFile] = useState({});
+  // const [message, setMessage] = useState('');
+  // const [uploadPercentage, setUploadPercentage] = useState(0);
+  const [ok, setOk] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [Extracted_Data, setExtracted_Data] = useState('');
+
+
+  const onChange = e => {
+    setFile(e.target.files[0]);
+    setFilename(e.target.files[0].name);
+  };
+  
+  const onSubmit = async e => {
+   // localStorage.removeItem("dataCV");
+      e.preventDefault();
+      const formData = new FormData();
+      formData.append('file', file);
+      console.log(formData)
+      const verif= beforeUpload(file)
+      console.log(file)
+      console.log(verif)
+      if (verif){
+            try {
+              setLoading(true)
+                          const res = await axios.post('http://localhost:4000/uploadoffre', formData, {
+                            
+                            headers: {
+                              'Content-Type': 'multipart/form-data'
+                            },
+                           }).then(response=>{
+                             alert(response.data.msg)
+                            setExtracted_Data(response.data.offre)
+                            setOk(true)
+                                
+                           }).catch((error)=>{console.log(error);});                   
+                } 
+                catch (err) {
+                            console.log(err);
+                             }
+              } 
+        
+  };
+ 
+
+  return (
+    <div className="App">
+      {ok && <Redirect
+            to={{
+            pathname: "/formOffre",
+            state: { dataoffre: Extracted_Data }
+          }
+        }
+        />}
+
+<nav class="navbar navbar-expand-lg navbar-primary bg-light">
+            <div class="container-fluid">
+    <a class="navbar-brand" href="/">REC-INOV</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+        <ul class="navbar-nav">
+              <li class="nav-item">
+                    <a class="nav-link " aria-current="page" href="/">Espace Candidat</a>
+              </li>
+              <li class="nav-item">
+                    <a class="nav-link" href="/importoffre">Espace Entreprise</a>
+              </li>
+              <li class="nav-item">
+                    <a class="nav-link" href="#">A propos</a>
+              </li>
+        </ul>
+      </div>
+    </div>
+</nav>
+<h2>Bienvenue dans l'espace entreprise </h2>
+          <h2>Importer votre Offre! </h2>
+                <div className="upload-container" align-items= "center">
+                        <div className="border-container">
+                           <div>
+                           <img src={img} alt="" width="50px" />
+                           </div>
+                        
+                            <form action="uploadoffre" method="post" onSubmit={onSubmit} >
+                           
+                                                          <div class="input-group mb-3">
+                                                      
+                                                              <input class="form-control form-control-lg" id="formFileLg" type="file" onChange={onChange}/>
+                                                              
+                                                          </div>
+                                                          <div className="button">
+                                                        
+                                                          <button
+                                                          id='btn' 
+                                                            type='submit'
+                                                            value='Upload'
+                                                            className='btn btn-primary btn-block mt-4 col-lg-4' 
+
+                                                          > Analyser mon Offre</button>
+                                                        </div>
+                                    </form>
+                        </div>
+                </div>
+                
+                { loading &&  <div>
+                  <h4>Traitement en cours ...</h4> 
+                  <div class="spinner-border m-5" role="status"></div>
+                        </div>} 
+        </div>
+       
+    
+  );
+}
+
+export default ImportOffre;

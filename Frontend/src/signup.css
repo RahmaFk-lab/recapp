@@ -1,0 +1,24 @@
+.login-blue {
+    background: linear-gradient(145deg, #2196F3, #3F51B5);
+}
+
+.col-4{
+    margin-left: 500px;
+    margin-top: 50px;
+}
+
+ .nav-tabs{
+    
+    border: none;
+    background: #9dbbdb;
+    
+    
+    
+} 
+
+.pt-3 img {
+
+    animation: none;
+    height : 100px;
+    width : 100px;
+}
